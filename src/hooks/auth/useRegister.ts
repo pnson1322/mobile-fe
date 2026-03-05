@@ -1,3 +1,6 @@
+import { getApiErrorMessage } from "@/services/apiError";
+import { registerApi } from "@/services/auth.api";
+import { setAccessToken } from "@/storage/authStorage";
 import { shake } from "@/utils/shake";
 import { isValidEmail } from "@/utils/validators";
 import { useMemo, useRef, useState } from "react";
@@ -13,13 +16,11 @@ type RegisterTouched = {
 export function useRegister() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-
   const [loading, setLoading] = useState(false);
 
   const [touched, setTouched] = useState<RegisterTouched>({
@@ -34,7 +35,7 @@ export function useRegister() {
   const nameTrim = fullName.trim();
   const emailTrim = email.trim();
 
-  const nameErr: string | null = !touched.fullName
+  const nameErr = !touched.fullName
     ? null
     : !nameTrim
       ? "Vui lòng nhập họ và tên."
@@ -42,7 +43,7 @@ export function useRegister() {
         ? "Họ và tên tối thiểu 2 ký tự."
         : null;
 
-  const emailErr: string | null = !touched.email
+  const emailErr = !touched.email
     ? null
     : !emailTrim
       ? "Vui lòng nhập email."
@@ -50,7 +51,7 @@ export function useRegister() {
         ? "Email không đúng định dạng."
         : null;
 
-  const passwordErr: string | null = !touched.password
+  const passwordErr = !touched.password
     ? null
     : !password
       ? "Vui lòng nhập mật khẩu."
@@ -58,7 +59,7 @@ export function useRegister() {
         ? "Mật khẩu tối thiểu 8 ký tự."
         : null;
 
-  const confirmErr: string | null = !touched.confirmPassword
+  const confirmErr = !touched.confirmPassword
     ? null
     : !confirmPassword
       ? "Vui lòng nhập lại mật khẩu."
@@ -89,7 +90,7 @@ export function useRegister() {
 
   async function submit(opts?: {
     onSuccess?: () => void;
-    onError?: (message?: string) => void;
+    onError?: () => void;
     simulateFail?: boolean;
   }) {
     markAllTouched();
@@ -103,22 +104,31 @@ export function useRegister() {
 
     if (invalid) {
       shake(shakeX);
-      opts?.onError?.("Vui lòng kiểm tra lại thông tin.");
+      opts?.onError?.();
       return;
     }
 
     try {
       setLoading(true);
-      await new Promise((r) => setTimeout(r, 850));
 
       if (opts?.simulateFail) {
-        opts?.onError?.("Email đã tồn tại hoặc có lỗi khi tạo tài khoản.");
+        await new Promise((r) => setTimeout(r, 500));
+        opts?.onError?.();
         return;
       }
 
+      const res = await registerApi({
+        fullName: nameTrim,
+        email: emailTrim,
+        password,
+      });
+
+      await setAccessToken(res.accessToken);
+
       opts?.onSuccess?.();
-    } catch {
-      opts?.onError?.("Có lỗi xảy ra, vui lòng thử lại.");
+    } catch (err) {
+      void getApiErrorMessage(err);
+      opts?.onError?.();
     } finally {
       setLoading(false);
     }

@@ -1,12 +1,12 @@
+import { getApiErrorMessage } from "@/services/apiError";
+import { loginApi } from "@/services/auth.api";
+import { setAccessToken } from "@/storage/authStorage";
 import { shake } from "@/utils/shake";
 import { isValidEmail } from "@/utils/validators";
 import { useMemo, useRef, useState } from "react";
 import { Animated } from "react-native";
 
-type LoginTouched = {
-  email: boolean;
-  password: boolean;
-};
+type LoginTouched = { email: boolean; password: boolean };
 
 export function useLogin() {
   const [email, setEmail] = useState("");
@@ -45,43 +45,39 @@ export function useLogin() {
   }, [emailTrim, password]);
 
   function markAllTouched() {
-    setTouched({
-      email: true,
-      password: true,
-    });
+    setTouched({ email: true, password: true });
   }
 
   async function submit(opts?: {
     onSuccess?: () => void;
-    onError?: (message?: string) => void;
+    onError?: () => void;
     simulateFail?: boolean;
   }) {
     markAllTouched();
 
-    const invalid =
-      !emailTrim ||
-      !isValidEmail(emailTrim) ||
-      !password ||
-      password.length < 8;
-
+    const invalid = !isValidEmail(emailTrim) || password.length < 8;
     if (invalid) {
       shake(shakeX);
-      opts?.onError?.("Vui lòng kiểm tra lại thông tin.");
+      opts?.onError?.();
       return;
     }
 
     try {
       setLoading(true);
-      await new Promise((r) => setTimeout(r, 850));
 
       if (opts?.simulateFail) {
-        opts?.onError?.("Email hoặc mật khẩu không đúng.");
+        await new Promise((r) => setTimeout(r, 500));
+        opts?.onError?.();
         return;
       }
 
+      const res = await loginApi({ email: emailTrim, password });
+      await setAccessToken(res.accessToken);
+
       opts?.onSuccess?.();
-    } catch {
-      opts?.onError?.("Có lỗi xảy ra, vui lòng thử lại.");
+    } catch (err) {
+      void getApiErrorMessage(err);
+      opts?.onError?.();
     } finally {
       setLoading(false);
     }
@@ -90,14 +86,11 @@ export function useLogin() {
   return {
     email,
     password,
-
     showPassword,
     loading,
-    touched,
 
     emailErr,
     passwordErr,
-
     isFormValid,
     shakeX,
 
