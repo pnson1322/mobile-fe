@@ -1,6 +1,6 @@
 import { AppButton } from "@/components/AppButton";
 import { AppInput } from "@/components/AppInput";
-import { KeyboardDismiss } from "@/components/KeyboardDismiss";
+import { KeyboardScreen } from "@/components/KeyboardScreen";
 import { ScreenGradient } from "@/components/ScreenGradient";
 import { useToast } from "@/components/toast/ToastProvider";
 import { useRegister } from "@/hooks/auth/useRegister";
@@ -36,7 +36,7 @@ export default function RegisterScreen() {
   } = useRegister();
 
   return (
-    <KeyboardDismiss>
+    <KeyboardScreen>
       <ScreenGradient>
         <Animated.View
           className="rounded-3xl bg-white px-5 py-6 shadow-lg"
@@ -142,6 +142,6 @@ export default function RegisterScreen() {
           </View>
         </Animated.View>
       </ScreenGradient>
-    </KeyboardDismiss>
+    </KeyboardScreen>
   );
 }

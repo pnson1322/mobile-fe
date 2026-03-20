@@ -1,8 +1,8 @@
 import { getApiErrorMessage } from "@/services/apiError";
-import { loginApi, registerApi } from "@/services/auth.api";
-import { setAccessToken, setRefreshToken } from "@/storage/authStorage";
+import { registerApi } from "@/services/auth.api";
 import { shake } from "@/utils/shake";
 import { isValidEmail } from "@/utils/validators";
+import { useRouter } from "expo-router";
 import { useMemo, useRef, useState } from "react";
 import { Animated } from "react-native";
 
@@ -22,6 +22,8 @@ export function useRegister() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
 
   const [touched, setTouched] = useState<RegisterTouched>({
     fullName: false,
@@ -112,10 +114,7 @@ export function useRegister() {
 
       await registerApi({ fullName: nameTrim, email: emailTrim, password });
 
-      const payload = await loginApi({ email: emailTrim, password });
-
-      await setAccessToken(payload.token);
-      await setRefreshToken(payload.refreshToken);
+      router.replace("/(auth)/login");
 
       opts?.onSuccess?.();
     } catch (err) {
