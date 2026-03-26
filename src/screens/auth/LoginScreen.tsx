@@ -82,14 +82,25 @@ export default function LoginScreen() {
               loading={loading}
               onPress={() =>
                 submit({
-                  onSuccess: () => {
+                  onSuccess: (role) => {
                     showToast({
                       type: "success",
                       title: "Thành công",
                       message: "Đăng nhập thành công 🎉",
                       durationMs: 2600,
                     });
-                    setTimeout(() => router.replace("/profile"), 650);
+
+                    setTimeout(() => {
+                      if (role === "Admin") {
+                        router.replace("/admin");
+                      } else if (role === "Student") {
+                        router.replace("/(student)/profile");
+                      } else if (role === "Manager") {
+                        router.replace("/(manager)/rooms");
+                      } else {
+                        router.replace("/(auth)/login");
+                      }
+                    }, 650);
                   },
                   onError: () =>
                     showToast({

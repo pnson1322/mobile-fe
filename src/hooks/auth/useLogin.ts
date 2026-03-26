@@ -1,6 +1,7 @@
 import { getApiErrorMessage } from "@/services/apiError";
 import { loginApi } from "@/services/auth.api";
 import { setAccessToken, setRefreshToken } from "@/storage/authStorage";
+import { decodeAccessToken, getUserRoleFromToken } from "@/utils/jwt";
 import { shake } from "@/utils/shake";
 import { isValidEmail } from "@/utils/validators";
 import { useMemo, useRef, useState } from "react";
@@ -49,7 +50,7 @@ export function useLogin() {
   }
 
   async function submit(opts?: {
-    onSuccess?: () => void;
+    onSuccess?: (role?: string | null) => void;
     onError?: () => void;
   }) {
     markAllTouched();
@@ -69,7 +70,13 @@ export function useLogin() {
       await setAccessToken(res.token);
       await setRefreshToken(res.refreshToken);
 
-      opts?.onSuccess?.();
+      const payload = decodeAccessToken(res.token);
+      const role = getUserRoleFromToken(res.token);
+
+      console.log("payload =", payload);
+      console.log("role =", role);
+
+      opts?.onSuccess?.(role);
     } catch (error: any) {
       if (error.response) {
         console.log("Dữ liệu lỗi từ server:", error.response.data);

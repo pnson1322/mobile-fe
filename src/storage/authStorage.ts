@@ -19,6 +19,16 @@ export async function setRefreshToken(token: string) {
   await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, token);
 }
 
+export async function setAuthTokens(
+  accessToken: string,
+  refreshToken?: string,
+) {
+  await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, accessToken);
+  if (refreshToken) {
+    await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refreshToken);
+  }
+}
+
 export async function clearAuthTokens() {
   await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
   await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
