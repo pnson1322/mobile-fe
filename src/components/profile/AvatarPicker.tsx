@@ -1,5 +1,6 @@
 import { Colors } from "@/constants/colors";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { Image, Pressable, Text, View } from "react-native";
 
 type Props = {
@@ -11,34 +12,80 @@ export function AvatarPicker({ imageUri, onPress }: Props) {
   return (
     <View className="items-center">
       <View className="relative">
-        <View className="h-[132px] w-[132px] overflow-hidden rounded-full border-[6px] border-slate-950 bg-white">
-          {imageUri ? (
-            <Image
-              source={{ uri: imageUri }}
-              className="h-full w-full"
-              resizeMode="cover"
-            />
-          ) : (
-            <View className="flex-1 items-center justify-center bg-slate-200">
-              <Ionicons name="person" size={48} color={Colors.textSecondary} />
-            </View>
-          )}
-        </View>
-
-        <Pressable
-          onPress={onPress}
-          className="absolute bottom-1 right-0 h-14 w-14 items-center justify-center rounded-full"
+        <LinearGradient
+          colors={[Colors.primary, Colors.primaryLight, Colors.accent]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
           style={{
-            backgroundColor: Colors.accent,
-            borderWidth: 5,
-            borderColor: Colors.textPrimary,
+            width: 146,
+            height: 146,
+            borderRadius: 999,
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          <Ionicons name="camera" size={24} color="white" />
-        </Pressable>
+          <View
+            className="overflow-hidden rounded-full"
+            style={{
+              width: 134,
+              height: 134,
+              backgroundColor: Colors.surface,
+            }}
+          >
+            {imageUri ? (
+              <Image
+                source={{ uri: imageUri }}
+                className="h-full w-full"
+                resizeMode="cover"
+              />
+            ) : (
+              <View
+                className="flex-1 items-center justify-center"
+                style={{ backgroundColor: "#E5E7EB" }}
+              >
+                <Ionicons
+                  name="person"
+                  size={46}
+                  color={Colors.textSecondary}
+                />
+              </View>
+            )}
+          </View>
+        </LinearGradient>
+
+        <LinearGradient
+          colors={[Colors.primary, Colors.primaryLight, Colors.accent]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{
+            position: "absolute",
+            right: -2,
+            bottom: 2,
+            width: 58,
+            height: 58,
+            borderRadius: 999,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Pressable
+            onPress={onPress}
+            className="items-center justify-center rounded-full"
+            style={{
+              width: 48,
+              height: 48,
+              backgroundColor: Colors.accent,
+            }}
+          >
+            <Ionicons name="camera" size={22} color="white" />
+          </Pressable>
+        </LinearGradient>
       </View>
 
-      <Text className="mt-4 text-center text-[16px] font-semibold text-textSecondary">
+      <Text
+        className="mt-4 text-center text-[15px] font-medium"
+        style={{ color: Colors.textSecondary }}
+      >
         Nhấn để thay đổi ảnh đại diện
       </Text>
     </View>

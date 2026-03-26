@@ -38,16 +38,18 @@ export function AppInput({
 
   return (
     <View className="gap-2">
-      <Text className="text-slate-900 font-extrabold">{label}</Text>
+      <Text className="text-[13px] font-semibold text-textSecondary">
+        {label}
+      </Text>
 
       <View
         className={[
-          "h-[52px] rounded-2xl border px-4 flex-row items-center bg-slate-50",
+          "h-[52px] rounded-2xl border bg-slate-50 px-4 flex-row items-center",
           borderClass,
         ].join(" ")}
       >
         <TextInput
-          className="flex-1 text-slate-900 text-[15px]"
+          className="flex-1 text-[15px] text-slate-900"
           placeholder={placeholder}
           placeholderTextColor="#94A3B8"
           value={value}
@@ -71,7 +73,7 @@ export function AppInput({
       </View>
 
       {!!error && (
-        <Text className="text-red-500 text-xs font-semibold">{error}</Text>
+        <Text className="text-xs font-semibold text-red-500">{error}</Text>
       )}
     </View>
   );

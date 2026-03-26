@@ -26,7 +26,7 @@ export function SelectField<T extends string>({
 }: Props<T>) {
   return (
     <View className="gap-2">
-      <Text className="font-extrabold uppercase text-textSecondary">
+      <Text className="text-[13px] font-semibold text-textSecondary">
         {label}
       </Text>
 
@@ -50,10 +50,10 @@ export function SelectField<T extends string>({
               ].join(" ")}
             >
               <Text
-                className={[
-                  "text-[16px] font-semibold",
-                  selected ? "text-textPrimary" : "text-textSecondary",
-                ].join(" ")}
+                className="text-[16px] font-medium"
+                style={{
+                  color: selected ? Colors.textPrimary : Colors.textSecondary,
+                }}
               >
                 {item.label}
               </Text>

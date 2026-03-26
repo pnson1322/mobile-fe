@@ -28,9 +28,9 @@ export function EditProfileForm({ profile, onBack, onSaved, onError }: Props) {
 
   const genderOptions = useMemo(
     () => [
-      { label: "Nam", value: "male" as const },
-      { label: "Nữ", value: "female" as const },
-      { label: "Khác", value: "other" as const },
+      { label: "Nam", value: "Male" as const },
+      { label: "Nữ", value: "Female" as const },
+      { label: "Khác", value: "Other" as const },
     ],
     [],
   );
@@ -70,19 +70,22 @@ export function EditProfileForm({ profile, onBack, onSaved, onError }: Props) {
   }
 
   return (
-    <View className="flex-1 bg-background">
+    <View className="flex-1" style={{ backgroundColor: Colors.background }}>
       <KeyboardScreen>
         <EditProfileHeader onBack={onBack} />
 
-        <View className="-mt-4 flex-1 px-5 pb-8">
-          <View className="items-center rounded-t-[28px] bg-background pt-2">
+        <View className="-mt-2 flex-1 px-5 pb-8">
+          <View
+            className="items-center rounded-t-[28px] pt-2"
+            style={{ backgroundColor: Colors.background }}
+          >
             <AvatarPicker
               imageUri={form.previewAvatarUri}
               onPress={() => void handlePickAvatar()}
             />
           </View>
 
-          <View className="mt-8 gap-6">
+          <View className="mt-7 gap-6">
             <FormSection title="Thông tin cá nhân">
               <AppInput
                 label="Họ và tên"
@@ -97,20 +100,33 @@ export function EditProfileForm({ profile, onBack, onSaved, onError }: Props) {
               />
 
               <View className="gap-2">
-                <Text className="font-extrabold uppercase text-textSecondary">
+                <Text
+                  className="text-[13px] font-semibold"
+                  style={{ color: Colors.textSecondary }}
+                >
                   Email
                 </Text>
 
                 <View
-                  className="h-[52px] flex-row items-center rounded-2xl bg-slate-100 px-4"
-                  style={{ borderWidth: 1, borderColor: Colors.border }}
+                  className="h-[52px] flex-row items-center rounded-2xl px-4"
+                  style={{
+                    backgroundColor: "#F1F5F9",
+                    borderWidth: 1,
+                    borderColor: Colors.border,
+                  }}
                 >
-                  <Text className="flex-1 text-[15px] text-textSecondary">
+                  <Text
+                    className="flex-1 text-[15px]"
+                    style={{ color: Colors.textSecondary }}
+                  >
                     {form.email}
                   </Text>
                 </View>
 
-                <Text className="text-sm text-textSecondary">
+                <Text
+                  className="text-sm"
+                  style={{ color: Colors.textSecondary }}
+                >
                   Liên hệ quản trị viên nếu bạn cần thay đổi email
                 </Text>
               </View>
@@ -126,25 +142,7 @@ export function EditProfileForm({ profile, onBack, onSaved, onError }: Props) {
                   form.setTouched((prev) => ({ ...prev, phoneNumber: true }))
                 }
               />
-            </FormSection>
 
-            <FormSection title="Nhân khẩu học">
-              <SelectField
-                label="Giới tính"
-                value={form.gender}
-                options={genderOptions}
-                onSelect={form.setGender}
-              />
-
-              <DateField
-                label="Ngày sinh"
-                value={form.dateOfBirth}
-                error={form.dateErr}
-                onPress={() => setShowDatePicker(true)}
-              />
-            </FormSection>
-
-            <FormSection title="Giới thiệu bản thân">
               <BioField
                 label="Tiểu sử"
                 value={form.bio}
@@ -154,7 +152,159 @@ export function EditProfileForm({ profile, onBack, onSaved, onError }: Props) {
               />
             </FormSection>
 
-            <View className="mt-2 gap-4 pb-8">
+            <FormSection title="Thông tin chung">
+              <DateField
+                label="Ngày sinh"
+                value={form.dateOfBirth}
+                error={form.dateErr}
+                onPress={() => setShowDatePicker(true)}
+              />
+
+              <SelectField
+                label="Giới tính"
+                value={form.gender}
+                options={genderOptions}
+                onSelect={form.setGender}
+              />
+
+              <AppInput
+                label="Sinh viên năm"
+                value={form.studentYear}
+                onChangeText={form.setStudentYear}
+                placeholder="Ví dụ: Năm 2"
+              />
+
+              <AppInput
+                label="Trường"
+                value={form.school}
+                onChangeText={form.setSchool}
+                placeholder="Nhập tên trường"
+              />
+
+              <AppInput
+                label="Khoa"
+                value={form.faculty}
+                onChangeText={form.setFaculty}
+                placeholder="Nhập tên khoa"
+              />
+
+              <View className="gap-2">
+                <Text
+                  className="text-[13px] font-semibold"
+                  style={{ color: Colors.textSecondary }}
+                >
+                  MSSV
+                </Text>
+
+                <View
+                  className="h-[52px] flex-row items-center rounded-2xl px-4"
+                  style={{
+                    backgroundColor: "#F1F5F9",
+                    borderWidth: 1,
+                    borderColor: Colors.border,
+                  }}
+                >
+                  <Text
+                    className="flex-1 text-[15px]"
+                    style={{ color: Colors.textSecondary }}
+                  >
+                    {form.studentCode || "Chưa cập nhật"}
+                  </Text>
+                </View>
+              </View>
+
+              <AppInput
+                label="CCCD"
+                value={form.citizenId}
+                onChangeText={form.setCitizenId}
+                placeholder="Nhập số CCCD"
+                keyboardType="number-pad"
+              />
+
+              <AppInput
+                label="Nơi cấp CCCD"
+                value={form.citizenIdIssuedPlace}
+                onChangeText={form.setCitizenIdIssuedPlace}
+                placeholder="Nhập nơi cấp CCCD"
+              />
+
+              <AppInput
+                label="Dân tộc"
+                value={form.ethnicity}
+                onChangeText={form.setEthnicity}
+                placeholder="Nhập dân tộc"
+              />
+
+              <AppInput
+                label="Tôn giáo"
+                value={form.religion}
+                onChangeText={form.setReligion}
+                placeholder="Nhập tôn giáo"
+              />
+            </FormSection>
+
+            <FormSection title="Thông tin cư trú, liên hệ">
+              <AppInput
+                label="Tỉnh/Thành phố"
+                value={form.province}
+                onChangeText={form.setProvince}
+                placeholder="Nhập tỉnh/thành phố"
+              />
+
+              <AppInput
+                label="Quận/Huyện"
+                value={form.district}
+                onChangeText={form.setDistrict}
+                placeholder="Nhập quận/huyện"
+              />
+
+              <AppInput
+                label="Phường/Xã"
+                value={form.ward}
+                onChangeText={form.setWard}
+                placeholder="Nhập phường/xã"
+              />
+
+              <AppInput
+                label="Số nhà, tên đường, tổ/xóm, khu"
+                value={form.addressLine}
+                onChangeText={form.setAddressLine}
+                placeholder="Nhập địa chỉ chi tiết"
+              />
+            </FormSection>
+
+            <FormSection title="Thông tin liên lạc">
+              <AppInput
+                label="Người liên hệ"
+                value={form.emergencyContactName}
+                onChangeText={form.setEmergencyContactName}
+                placeholder="Nhập tên người liên hệ"
+              />
+
+              <AppInput
+                label="Số điện thoại"
+                value={form.emergencyContactPhoneNumber}
+                onChangeText={form.setEmergencyContactPhoneNumber}
+                placeholder="Nhập số điện thoại người liên hệ"
+                keyboardType="phone-pad"
+                error={form.emergencyPhoneErr}
+                onBlur={() =>
+                  form.setTouched((prev) => ({
+                    ...prev,
+                    emergencyContactPhoneNumber: true,
+                  }))
+                }
+              />
+
+              <AppInput
+                label="Địa chỉ liên lạc"
+                value={form.emergencyContactAddress}
+                onChangeText={form.setEmergencyContactAddress}
+                placeholder="Nhập địa chỉ liên lạc"
+              />
+            </FormSection>
+
+            <View className="mt-1 gap-4 pb-8">
               <AppButton
                 title="Lưu thay đổi"
                 onPress={() => void handleSubmit()}
@@ -163,10 +313,17 @@ export function EditProfileForm({ profile, onBack, onSaved, onError }: Props) {
 
               <Pressable
                 onPress={onBack}
-                className="h-[52px] items-center justify-center rounded-2xl bg-surface"
-                style={{ borderWidth: 1, borderColor: Colors.border }}
+                className="h-[52px] items-center justify-center rounded-2xl"
+                style={{
+                  backgroundColor: Colors.surface,
+                  borderWidth: 1,
+                  borderColor: Colors.border,
+                }}
               >
-                <Text className="text-[16px] font-extrabold text-textSecondary">
+                <Text
+                  className="text-[16px] font-bold"
+                  style={{ color: Colors.textPrimary }}
+                >
                   Hủy
                 </Text>
               </Pressable>

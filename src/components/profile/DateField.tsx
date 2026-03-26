@@ -14,7 +14,7 @@ type Props = {
 export function DateField({ label, value, helperText, error, onPress }: Props) {
   return (
     <View className="gap-2">
-      <Text className="font-extrabold uppercase text-textSecondary">
+      <Text className="text-[13px] font-semibold text-textSecondary">
         {label}
       </Text>
 
@@ -28,7 +28,7 @@ export function DateField({ label, value, helperText, error, onPress }: Props) {
       >
         <Text
           className={[
-            "flex-1 text-[16px]",
+            "flex-1 text-[15px]",
             value ? "text-textPrimary" : "text-textSecondary",
           ].join(" ")}
         >

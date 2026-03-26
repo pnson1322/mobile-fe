@@ -22,7 +22,7 @@ export default function RootLayout() {
       if (!token && !inAuth) {
         router.replace("/(auth)/login");
       } else if (token && inAuth) {
-        router.replace("/");
+        router.replace("/profile");
       }
 
       setReady(true);

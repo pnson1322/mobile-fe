@@ -1,5 +1,5 @@
 export function formatDateToDisplay(date: string | null) {
-  if (!date) return "--/--/----";
+  if (!date) return "Chưa cập nhật";
 
   const [year, month, day] = date.split("-");
   if (!year || !month || !day) return date;
@@ -23,9 +23,9 @@ export function calculateAge(date: string | null) {
   return age;
 }
 
-export function genderToVietnamese(gender: "male" | "female" | "other" | null) {
-  if (gender === "male") return "Nam";
-  if (gender === "female") return "Nữ";
-  if (gender === "other") return "Khác";
+export function genderToVietnamese(gender: "Male" | "Female" | "Other" | null) {
+  if (gender === "Male") return "Nam";
+  if (gender === "Female") return "Nữ";
+  if (gender === "Other") return "Khác";
   return "Chưa cập nhật";
 }

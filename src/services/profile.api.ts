@@ -1,6 +1,6 @@
 import { http } from "@/services/http";
 
-export type Gender = "male" | "female" | "other";
+export type Gender = "Male" | "Female" | "Other";
 
 export type ProfileData = {
   id: string;
@@ -11,7 +11,26 @@ export type ProfileData = {
   dateOfBirth: string | null; // YYYY-MM-DD
   bio: string | null;
   avatarUrl: string | null;
+
   studentCode: string | null;
+  studentYear: string | null;
+  school: string | null;
+  faculty: string | null;
+
+  citizenId: string | null;
+  citizenIdIssuedPlace: string | null;
+  ethnicity: string | null;
+  religion: string | null;
+
+  province: string | null;
+  district: string | null;
+  ward: string | null;
+  addressLine: string | null;
+
+  emergencyContactName: string | null;
+  emergencyContactPhoneNumber: string | null;
+  emergencyContactAddress: string | null;
+
   room: {
     id: string;
     name: string;
@@ -30,6 +49,24 @@ export type UpdateProfileBody = {
   gender?: Gender | null;
   dateOfBirth?: string | null;
   bio?: string | null;
+
+  studentYear?: string | null;
+  school?: string | null;
+  faculty?: string | null;
+
+  citizenId?: string | null;
+  citizenIdIssuedPlace?: string | null;
+  ethnicity?: string | null;
+  religion?: string | null;
+
+  province?: string | null;
+  district?: string | null;
+  ward?: string | null;
+  addressLine?: string | null;
+
+  emergencyContactName?: string | null;
+  emergencyContactPhoneNumber?: string | null;
+  emergencyContactAddress?: string | null;
 };
 
 type UploadAvatarResponse = {

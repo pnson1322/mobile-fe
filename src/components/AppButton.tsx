@@ -15,17 +15,17 @@ export function AppButton({ title, onPress, loading, disabled }: Props) {
       onPress={onPress}
       disabled={isDisabled}
       className={[
-        "h-[52px] rounded-2xl items-center justify-center",
+        "h-[52px] rounded-2xl items-center justify-center overflow-hidden",
         isDisabled ? "opacity-60" : "active:opacity-90",
       ].join(" ")}
     >
       <View className="absolute inset-0 rounded-2xl bg-primary" />
-      <View className="absolute inset-0 rounded-2xl bg-primaryLight opacity-20" />
+      <View className="absolute inset-0 rounded-2xl bg-primaryLight opacity-10" />
 
       {loading ? (
         <ActivityIndicator color="white" />
       ) : (
-        <Text className="text-white font-extrabold text-[16px]">{title}</Text>
+        <Text className="text-[16px] font-bold text-white">{title}</Text>
       )}
     </Pressable>
   );

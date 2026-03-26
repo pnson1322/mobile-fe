@@ -12,12 +12,24 @@ type Props = {
 export function ProfileSectionCard({ icon, title, children }: Props) {
   return (
     <View
-      className="rounded-[24px] bg-surface px-5 py-5"
-      style={{ borderWidth: 1, borderColor: Colors.border }}
+      className="rounded-[24px] px-5 py-5"
+      style={{
+        backgroundColor: Colors.surface,
+        borderWidth: 1,
+        borderColor: Colors.border,
+        shadowColor: "#000",
+        shadowOpacity: 0.04,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 2,
+      }}
     >
       <View className="mb-4 flex-row items-center gap-2">
         <Ionicons name={icon} size={20} color={Colors.textSecondary} />
-        <Text className="text-sm font-extrabold uppercase text-textSecondary">
+        <Text
+          className="text-[15px] font-bold"
+          style={{ color: Colors.textPrimary }}
+        >
           {title}
         </Text>
       </View>

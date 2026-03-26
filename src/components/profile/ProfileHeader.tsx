@@ -7,7 +7,7 @@ import { Image, Text, View } from "react-native";
 
 type Props = {
   fullName: string;
-  gender: "male" | "female" | "other" | null;
+  gender: "Male" | "Female" | "Other" | null;
   dateOfBirth: string | null;
   avatarUrl: string | null;
   onEditPress: () => void;
@@ -23,7 +23,7 @@ export function ProfileHeader({
   const age = calculateAge(dateOfBirth);
 
   return (
-    <View className="bg-background">
+    <View style={{ backgroundColor: Colors.background }}>
       <View className="relative">
         <LinearGradient
           colors={[Colors.primary, Colors.primaryLight, Colors.accent]}
@@ -36,35 +36,64 @@ export function ProfileHeader({
           }}
         />
 
-        <View className="-mt-20 px-6">
-          <View className="h-[132px] w-[132px] overflow-hidden rounded-full border-[6px] border-slate-950 bg-white">
-            {avatarUrl ? (
-              <Image
-                source={{ uri: avatarUrl }}
-                className="h-full w-full"
-                resizeMode="cover"
-              />
-            ) : (
-              <View className="flex-1 items-center justify-center bg-slate-200">
-                <Ionicons
-                  name="person"
-                  size={48}
-                  color={Colors.textSecondary}
+        <View className="-mt-[74px] px-6">
+          <LinearGradient
+            colors={[Colors.primary, Colors.primaryLight, Colors.accent]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{
+              width: 138,
+              height: 138,
+              borderRadius: 999,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <View
+              className="overflow-hidden rounded-full"
+              style={{
+                width: 128,
+                height: 128,
+                backgroundColor: Colors.surface,
+              }}
+            >
+              {avatarUrl ? (
+                <Image
+                  source={{ uri: avatarUrl }}
+                  className="h-full w-full"
+                  resizeMode="cover"
                 />
-              </View>
-            )}
-          </View>
+              ) : (
+                <View
+                  className="flex-1 items-center justify-center"
+                  style={{ backgroundColor: "#E5E7EB" }}
+                >
+                  <Ionicons
+                    name="person"
+                    size={44}
+                    color={Colors.textSecondary}
+                  />
+                </View>
+              )}
+            </View>
+          </LinearGradient>
 
-          <Text className="mt-4 text-[34px] font-extrabold text-textPrimary">
+          <Text
+            className="mt-4 text-[28px] font-extrabold"
+            style={{ color: Colors.textPrimary }}
+          >
             {fullName}
           </Text>
 
-          <Text className="mt-1 text-[17px] font-medium text-textSecondary">
+          <Text
+            className="mt-1 text-[16px] font-medium"
+            style={{ color: Colors.textSecondary }}
+          >
             {genderToVietnamese(gender)}
             {age !== null ? ` • ${age} tuổi` : ""}
           </Text>
 
-          <View className="mt-6">
+          <View className="mt-5">
             <AppButton title="Chỉnh sửa hồ sơ" onPress={onEditPress} />
           </View>
         </View>

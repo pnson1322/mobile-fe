@@ -18,7 +18,7 @@ export function BioField({
 }: Props) {
   return (
     <View className="gap-2">
-      <Text className="font-extrabold uppercase text-textSecondary">
+      <Text className="text-[13px] font-semibold text-textSecondary">
         {label}
       </Text>
 
@@ -38,8 +38,8 @@ export function BioField({
           multiline
           textAlignVertical="top"
           maxLength={maxLength}
-          className="text-[16px] leading-7 text-textPrimary"
-          style={{ minHeight: 110 }}
+          className="text-[15px] leading-7 text-textPrimary"
+          style={{ minHeight: 105 }}
         />
 
         <View className="mt-3 flex-row items-center justify-between">
