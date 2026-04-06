@@ -1,15 +1,17 @@
 import { AppButton } from "@/components/AppButton";
 import { RoomDetailOverviewCard } from "@/components/room/RoomDetailOverviewCard";
+import { RoomEditFormCard } from "@/components/room/RoomEditFormCard";
 import { RoomResidentsPlaceholderCard } from "@/components/room/RoomResidentsPlaceholderCard";
 import { RoomStatusInlineCard } from "@/components/room/RoomStatusInlineCard";
 import { useToast } from "@/components/toast/ToastProvider";
 import { Colors } from "@/constants/colors";
 import { useRoomDetails } from "@/hooks/room/useRoomDetails";
-import { useUpdateRoomStatus } from "@/hooks/room/useUpdateRoomStatus";
-import { RoomStatus } from "@/services/room.api";
+import { useRoomDetailsEditor } from "@/hooks/room/useRoomDetailsEditor";
+import { useRoomDetailsLeaveGuard } from "@/hooks/room/useRoomDetailsLeaveGuard";
+import { useRoomFormOptions } from "@/hooks/room/useRoomFormOptions";
 import { Ionicons } from "@expo/vector-icons";
-import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useCallback } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -24,22 +26,47 @@ import {
 } from "react-native-safe-area-context";
 
 export function RoomDetailsScreen() {
-  const router = useRouter();
   const insets = useSafeAreaInsets();
   const { showToast } = useToast();
-
-  const { id, roomStatus: roomStatusParam } = useLocalSearchParams<{
-    id: string;
-    roomStatus?: RoomStatus;
-  }>();
+  const { id } = useLocalSearchParams<{ id: string }>();
 
   const { room, loading, refreshing, error, refetch, setRoom } = useRoomDetails(
     typeof id === "string" ? id : undefined,
   );
 
-  const { loading: updatingStatus, submit } = useUpdateRoomStatus();
+  const {
+    buildings,
+    roomTypes,
+    loading: optionsLoading,
+    error: optionsError,
+    refetch: refetchOptions,
+  } = useRoomFormOptions();
 
-  const [selectedStatus, setSelectedStatus] = useState<RoomStatus>("AVAILABLE");
+  const editor = useRoomDetailsEditor({
+    room,
+    buildings,
+    roomTypes,
+    refetch,
+    setRoom,
+    showSuccess: () =>
+      showToast({
+        type: "success",
+        title: "Cập nhật thành công",
+        message: "Thông tin phòng đã được cập nhật.",
+      }),
+    showError: (message) =>
+      showToast({
+        type: "error",
+        title: "Cập nhật thất bại",
+        message,
+      }),
+  });
+
+  const { handleBack } = useRoomDetailsLeaveGuard({
+    hasChanges: editor.hasChanges,
+    loading: editor.saving,
+    onDiscard: editor.resetDraftFromRoom,
+  });
 
   useFocusEffect(
     useCallback(() => {
@@ -47,60 +74,7 @@ export function RoomDetailsScreen() {
     }, [refetch]),
   );
 
-  useEffect(() => {
-    if (!roomStatusParam) return;
-
-    setSelectedStatus(roomStatusParam);
-
-    setRoom((prev) =>
-      prev
-        ? {
-            ...prev,
-            roomStatus: roomStatusParam,
-          }
-        : prev,
-    );
-  }, [roomStatusParam, setRoom]);
-
-  useEffect(() => {
-    if (room?.roomStatus) {
-      setSelectedStatus(room.roomStatus);
-    }
-  }, [room?.roomStatus]);
-
-  async function handleSaveStatus() {
-    if (!room) return;
-
-    await submit(room, selectedStatus, {
-      onSuccess: async () => {
-        showToast({
-          type: "success",
-          title: "Cập nhật thành công",
-          message: "Trạng thái phòng đã được cập nhật.",
-        });
-
-        setRoom((prev) =>
-          prev
-            ? {
-                ...prev,
-                roomStatus: selectedStatus,
-              }
-            : prev,
-        );
-
-        await refetch();
-      },
-      onError: (message) => {
-        showToast({
-          type: "error",
-          title: "Cập nhật thất bại",
-          message,
-        });
-      },
-    });
-  }
-
-  if (loading) {
+  if (loading || optionsLoading) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }}>
         <View className="flex-1 items-center justify-center">
@@ -110,7 +84,7 @@ export function RoomDetailsScreen() {
     );
   }
 
-  if (!room) {
+  if (!room || error || optionsError || !editor.previewRoom) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }}>
         <View
@@ -122,7 +96,7 @@ export function RoomDetailsScreen() {
         >
           <View className="flex-row items-center">
             <Pressable
-              onPress={() => router.back()}
+              onPress={handleBack}
               className="mr-4 h-11 w-11 items-center justify-center rounded-full bg-white/15"
             >
               <Ionicons name="arrow-back" size={22} color="#FFFFFF" />
@@ -135,17 +109,16 @@ export function RoomDetailsScreen() {
         </View>
 
         <View className="flex-1 items-center justify-center px-6">
-          <Text
-            className="text-center text-[16px] font-semibold"
-            style={{ color: Colors.textPrimary }}
-          >
-            {error || "Không tải được chi tiết phòng."}
+          <Text className="text-center text-[16px] font-semibold text-textPrimary">
+            {error || optionsError || "Không tải được chi tiết phòng."}
           </Text>
 
           <Pressable
-            onPress={() => void refetch()}
-            className="mt-4 h-12 items-center justify-center rounded-2xl px-5"
-            style={{ backgroundColor: Colors.primary }}
+            onPress={() => {
+              void refetch();
+              void refetchOptions();
+            }}
+            className="mt-4 h-12 items-center justify-center rounded-2xl px-5 bg-primary"
           >
             <Text className="font-bold text-white">Thử lại</Text>
           </Pressable>
@@ -165,7 +138,7 @@ export function RoomDetailsScreen() {
       >
         <View className="flex-row items-center">
           <Pressable
-            onPress={() => router.back()}
+            onPress={handleBack}
             className="mr-4 h-11 w-11 items-center justify-center rounded-full bg-white/15"
           >
             <Ionicons name="arrow-back" size={22} color="#FFFFFF" />
@@ -189,20 +162,36 @@ export function RoomDetailsScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View className="gap-5">
-          <RoomDetailOverviewCard room={room} />
+          <RoomDetailOverviewCard room={editor.previewRoom} />
+
+          <RoomEditFormCard
+            buildingId={editor.buildingId}
+            name={editor.name}
+            floor={editor.floor}
+            roomTypeId={editor.roomTypeId}
+            buildings={buildings}
+            roomTypes={roomTypes}
+            onChangeBuildingId={editor.setBuildingId}
+            onChangeName={editor.setName}
+            onChangeFloor={editor.setFloor}
+            onChangeRoomTypeId={editor.setRoomTypeId}
+          />
 
           <RoomResidentsPlaceholderCard />
 
           <RoomStatusInlineCard
-            value={selectedStatus}
-            onChange={setSelectedStatus}
+            value={editor.selectedStatus}
+            onChange={editor.setSelectedStatus}
           />
 
-          <AppButton
-            title="Lưu trạng thái"
-            onPress={() => void handleSaveStatus()}
-            loading={updatingStatus}
-          />
+          {editor.hasChanges ? (
+            <AppButton
+              title="Lưu thay đổi"
+              onPress={() => void editor.saveChanges()}
+              loading={editor.saving}
+              disabled={!editor.isFormValid || editor.saving}
+            />
+          ) : null}
         </View>
       </ScrollView>
     </SafeAreaView>

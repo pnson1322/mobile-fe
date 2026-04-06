@@ -10,6 +10,7 @@ type Props = {
   roomName?: string;
   value: RoomStatus;
   loading?: boolean;
+  confirmDisabled?: boolean;
   onChange: (status: RoomStatus) => void;
   onClose: () => void;
   onConfirm: () => void;
@@ -20,6 +21,7 @@ export function RoomStatusSheet({
   roomName,
   value,
   loading,
+  confirmDisabled = false,
   onChange,
   onClose,
   onConfirm,
@@ -153,6 +155,7 @@ export function RoomStatusSheet({
                 title="Xác nhận"
                 onPress={onConfirm}
                 loading={loading}
+                disabled={confirmDisabled || loading}
               />
             </View>
           </View>

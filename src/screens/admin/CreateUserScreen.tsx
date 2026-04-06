@@ -5,10 +5,12 @@ import { FormSection } from "@/components/profile/FormSection";
 import { useToast } from "@/components/toast/ToastProvider";
 import { Colors } from "@/constants/colors";
 import { useCreateUser } from "@/hooks/user/useCreateUser";
+import { useCreateUserDraftGuard } from "@/hooks/user/useCreateUserDraftGuard";
 import { emitUserListRefresh } from "@/hooks/user/userRefreshBus";
 import { UserRole } from "@/services/user.api";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import {
   SafeAreaView,
@@ -63,14 +65,24 @@ export function CreateUserScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { showToast } = useToast();
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   const form = useCreateUser();
+
+  const { formKey, handleBack, resetFormState } = useCreateUserDraftGuard({
+    fullName: form.fullName,
+    email: form.email,
+    password: form.password,
+    role: form.role,
+    loading: form.loading,
+    reset: form.reset,
+    onResetExtra: () => setPasswordVisible(false),
+  });
 
   async function handleSubmit() {
     await form.submit({
       onSuccess: () => {
-        form.reset();
-
+        resetFormState();
         emitUserListRefresh();
 
         showToast({
@@ -104,7 +116,7 @@ export function CreateUserScreen() {
       >
         <View className="flex-row items-center">
           <Pressable
-            onPress={() => router.back()}
+            onPress={handleBack}
             className="mr-4 h-11 w-11 items-center justify-center rounded-full bg-white/15"
           >
             <Ionicons name="arrow-back" size={22} color="#FFFFFF" />
@@ -129,8 +141,9 @@ export function CreateUserScreen() {
           paddingBottom: 60,
         }}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
-        <View className="gap-6">
+        <View key={formKey} className="gap-6">
           <FormSection title="Thông tin cơ bản">
             <AppInput
               label="Họ tên"
@@ -165,7 +178,12 @@ export function CreateUserScreen() {
                 form.setTouched((prev) => ({ ...prev, password: true }));
               }}
               placeholder="Nhập mật khẩu"
-              secureTextEntry
+              secureTextEntry={!passwordVisible}
+              showPasswordToggle
+              isPasswordVisible={passwordVisible}
+              onTogglePasswordVisible={() =>
+                setPasswordVisible((prev) => !prev)
+              }
               error={form.passwordErr}
             />
 
@@ -242,10 +260,7 @@ export function CreateUserScreen() {
             />
 
             <Pressable
-              onPress={() => {
-                form.reset();
-                router.back();
-              }}
+              onPress={handleBack}
               className="h-[52px] items-center justify-center rounded-2xl"
               style={{
                 backgroundColor: Colors.surface,

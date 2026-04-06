@@ -110,7 +110,7 @@ export default function RootLayout() {
         if (tokenToUse && isTokenExpired(tokenToUse)) {
           try {
             tokenToUse = await refreshSessionIfNeeded();
-          } catch (error) {
+          } catch {
             await clearAuthTokens();
 
             if (!mounted) return;
@@ -135,7 +135,7 @@ export default function RootLayout() {
           return;
         }
 
-        if (first === "admin" && role !== "Admin") {
+        if (first === "(admin)" && role !== "Admin") {
           router.replace(homeRoute);
           return;
         }
@@ -145,18 +145,17 @@ export default function RootLayout() {
           return;
         }
 
-        if (first === "(manager)" && role !== "Manager") {
-          router.replace(homeRoute);
-          return;
-        }
-
-        if (first === "(manager)" && role !== "SeniorManager") {
+        if (
+          first === "(manager)" &&
+          role !== "Manager" &&
+          role !== "SeniorManager"
+        ) {
           router.replace(homeRoute);
           return;
         }
 
         setReady(true);
-      } catch (error) {
+      } catch {
         await clearAuthTokens();
 
         if (!mounted) return;

@@ -29,7 +29,15 @@ export function AppTabsLayout({
 
   const isTabFocused = (tabName: string) => {
     const normalized = pathname.replace(/\/$/, "");
-    return normalized === `/${tabName}` || normalized.endsWith(`/${tabName}`);
+    const parts = tabName.split("/");
+    const lastPart = parts[parts.length - 1];
+
+    return (
+      normalized.endsWith(`/${tabName}`) ||
+      normalized.endsWith(`/${lastPart}`) ||
+      normalized.includes(`/${tabName}/`) ||
+      normalized.includes(`/${lastPart}/`)
+    );
   };
 
   return (

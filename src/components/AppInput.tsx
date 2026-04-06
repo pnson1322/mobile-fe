@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Pressable, Text, TextInput, TextInputProps, View } from "react-native";
 
 type Props = {
@@ -29,6 +29,7 @@ export function AppInput({
   ...rest
 }: Props) {
   const [focused, setFocused] = useState(false);
+  const inputRef = useRef<TextInput>(null);
 
   const borderClass = error
     ? "border-red-500"
@@ -49,6 +50,7 @@ export function AppInput({
         ].join(" ")}
       >
         <TextInput
+          ref={inputRef}
           className="flex-1 text-[15px] text-slate-900"
           placeholder={placeholder}
           placeholderTextColor="#94A3B8"
@@ -62,7 +64,16 @@ export function AppInput({
         />
 
         {showPasswordToggle ? (
-          <Pressable onPress={onTogglePasswordVisible} hitSlop={12}>
+          <Pressable
+            onPressIn={() => {
+              onTogglePasswordVisible?.();
+
+              requestAnimationFrame(() => {
+                inputRef.current?.focus();
+              });
+            }}
+            hitSlop={12}
+          >
             <Ionicons
               name={isPasswordVisible ? "eye-off" : "eye"}
               size={20}

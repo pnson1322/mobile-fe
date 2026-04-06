@@ -50,7 +50,7 @@ export function RoomStatusInlineCard({ value, onChange }: Props) {
         className="text-[18px] font-bold"
         style={{ color: Colors.textPrimary }}
       >
-        Cập nhật trạng thái phòng
+        Trạng thái phòng
       </Text>
 
       <View className="mt-4 gap-4">

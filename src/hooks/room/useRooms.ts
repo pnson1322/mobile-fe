@@ -27,6 +27,11 @@ const DEFAULT_META: PagingMeta = {
 
 const PAGE_SIZE = 20;
 
+type RefetchOptions = {
+  refreshing?: boolean;
+  silent?: boolean;
+};
+
 export function useRooms() {
   const [items, setItems] = useState<RoomItem[]>([]);
   const [counts, setCounts] = useState<RoomCountData>(DEFAULT_COUNTS);
@@ -39,9 +44,11 @@ export function useRooms() {
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [countLoading, setCountLoading] = useState(true);
+  const [filtering, setFiltering] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const requestIdRef = useRef(0);
+  const initializedRef = useRef(false);
 
   const fetchCounts = useCallback(async () => {
     try {
@@ -56,7 +63,14 @@ export function useRooms() {
   }, []);
 
   const fetchPage = useCallback(
-    async (page: number, opts?: { refresh?: boolean; append?: boolean }) => {
+    async (
+      page: number,
+      opts?: {
+        refresh?: boolean;
+        append?: boolean;
+        silent?: boolean;
+      },
+    ) => {
       const requestId = ++requestIdRef.current;
 
       try {
@@ -64,8 +78,10 @@ export function useRooms() {
           setRefreshing(true);
         } else if (opts?.append) {
           setLoadingMore(true);
-        } else {
+        } else if (!initializedRef.current) {
           setLoading(true);
+        } else if (!opts?.silent) {
+          setFiltering(true);
         }
 
         setError(null);
@@ -89,6 +105,8 @@ export function useRooms() {
           }
           return res.items;
         });
+
+        initializedRef.current = true;
       } catch (err) {
         if (requestId !== requestIdRef.current) return;
         setError(getApiErrorMessage(err));
@@ -97,18 +115,32 @@ export function useRooms() {
           setLoading(false);
           setRefreshing(false);
           setLoadingMore(false);
+          setFiltering(false);
         }
       }
     },
     [search, status],
   );
 
-  const refetch = useCallback(async () => {
-    await Promise.all([fetchCounts(), fetchPage(1, { refresh: true })]);
-  }, [fetchCounts, fetchPage]);
+  const refetch = useCallback(
+    async (opts?: RefetchOptions) => {
+      if (opts?.refreshing) {
+        await Promise.all([fetchCounts(), fetchPage(1, { refresh: true })]);
+        return;
+      }
+
+      if (opts?.silent) {
+        await Promise.all([fetchCounts(), fetchPage(1, { silent: true })]);
+        return;
+      }
+
+      await Promise.all([fetchCounts(), fetchPage(1)]);
+    },
+    [fetchCounts, fetchPage],
+  );
 
   const loadMore = useCallback(async () => {
-    if (loading || refreshing || loadingMore) return;
+    if (loading || refreshing || loadingMore || filtering) return;
     if (!meta.hasNext) return;
 
     await fetchPage(meta.currentPage + 1, { append: true });
@@ -117,6 +149,7 @@ export function useRooms() {
     loading,
     refreshing,
     loadingMore,
+    filtering,
     meta.hasNext,
     meta.currentPage,
   ]);
@@ -127,7 +160,7 @@ export function useRooms() {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      void fetchPage(1);
+      void fetchPage(1, { silent: initializedRef.current });
     }, 250);
 
     return () => clearTimeout(timeout);
@@ -154,6 +187,7 @@ export function useRooms() {
     refreshing,
     loadingMore,
     countLoading,
+    filtering,
     error,
     totalForSelectedTab,
     hasAnyFilter,

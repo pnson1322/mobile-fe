@@ -4,14 +4,15 @@ import { RoomStatusSheet } from "@/components/room/RoomStatusSheet";
 import { RoomSummaryTabs } from "@/components/room/RoomSummaryTabs";
 import { useToast } from "@/components/toast/ToastProvider";
 import { Colors } from "@/constants/colors";
+import { subscribeRoomListRefresh } from "@/hooks/room/roomRefreshBus";
 import { useRoomDetails } from "@/hooks/room/useRoomDetails";
 import { useRooms } from "@/hooks/room/useRooms";
 import { useUpdateRoomStatus } from "@/hooks/room/useUpdateRoomStatus";
 import { RoomItem, RoomStatus } from "@/services/room.api";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "expo-router";
+import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -38,6 +39,7 @@ export function RoomsScreen() {
     loading,
     refreshing,
     loadingMore,
+    filtering,
     error,
     setSearch,
     setStatus,
@@ -52,11 +54,13 @@ export function RoomsScreen() {
 
   const roomDetails = useRoomDetails(selectedRoom?.id);
 
-  useFocusEffect(
-    useCallback(() => {
-      void refetch();
-    }, [refetch]),
-  );
+  useEffect(() => {
+    const unsubscribe = subscribeRoomListRefresh(() => {
+      void refetch({ silent: true });
+    });
+
+    return unsubscribe;
+  }, [refetch]);
 
   useEffect(() => {
     if (selectedRoom) {
@@ -85,7 +89,7 @@ export function RoomsScreen() {
           message: "Trạng thái phòng đã được cập nhật.",
         });
         setSelectedRoom(null);
-        await refetch();
+        await refetch({ silent: true });
       },
       onError: (message) => {
         showToast({
@@ -96,6 +100,9 @@ export function RoomsScreen() {
       },
     });
   }
+
+  const statusChanged =
+    !!selectedRoom && selectedStatus !== selectedRoom.roomStatus;
 
   const resultText = useMemo(() => {
     const keyword = search.trim();
@@ -157,12 +164,18 @@ export function RoomsScreen() {
             onChange={setStatus}
           />
 
-          <Text
-            className="mt-5 text-[16px] font-semibold mb-3"
-            style={{ color: Colors.textSecondary }}
-          >
-            {resultText}
-          </Text>
+          <View className="mt-5 flex-row items-center">
+            <Text
+              className="flex-1 text-[16px] font-semibold"
+              style={{ color: Colors.textSecondary }}
+            >
+              {resultText}
+            </Text>
+
+            {filtering ? (
+              <ActivityIndicator size="small" color={Colors.primary} />
+            ) : null}
+          </View>
         </View>
 
         {loading ? (
@@ -179,7 +192,7 @@ export function RoomsScreen() {
             </Text>
 
             <Pressable
-              onPress={() => void refetch()}
+              onPress={() => void refetch({ refreshing: true })}
               className="mt-4 h-12 items-center justify-center rounded-2xl px-5"
               style={{ backgroundColor: Colors.primary }}
             >
@@ -206,7 +219,6 @@ export function RoomsScreen() {
                     pathname: "/(manager)/room-details/[id]",
                     params: {
                       id: item.id,
-                      roomStatus: item.roomStatus,
                     },
                   })
                 }
@@ -217,7 +229,7 @@ export function RoomsScreen() {
             refreshControl={
               <RefreshControl
                 refreshing={refreshing}
-                onRefresh={() => void refetch()}
+                onRefresh={() => void refetch({ refreshing: true })}
               />
             }
             ListEmptyComponent={
@@ -268,10 +280,11 @@ export function RoomsScreen() {
           visible={!!selectedRoom}
           roomName={selectedRoom?.name}
           value={selectedStatus}
+          loading={updatingStatus || roomDetails.loading}
+          confirmDisabled={!statusChanged}
           onChange={setSelectedStatus}
           onClose={() => setSelectedRoom(null)}
           onConfirm={() => void handleConfirmStatus()}
-          loading={updatingStatus || roomDetails.loading}
         />
       </View>
     </SafeAreaView>
